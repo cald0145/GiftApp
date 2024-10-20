@@ -1,6 +1,6 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
-import { Camera } from 'expo-camera';
+import { Camera, CameraType } from 'expo-camera';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import PeopleContext from '../PeopleContext';
@@ -12,7 +12,7 @@ export default function AddIdeaScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-  const [availableSizes, setAvailableSizes] = useState([]);
+  const [cameraType, setCameraType] = useState(CameraType.back || 'back');
   const cameraRef = useRef(null);
   const navigation = useNavigation();
   const route = useRoute();
@@ -28,44 +28,37 @@ export default function AddIdeaScreen() {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
-      if (status === 'granted') {
-        const sizes = await Camera.getAvailablePictureSizesAsync('4:3');
-        setAvailableSizes(sizes);
-      }
     })();
   }, []);
 
-  const getBestSize = () => {
-    const targetPixels = imageWidth * imageHeight;
-    return availableSizes.reduce((prev, curr) => {
-      const [width, height] = curr.split('x').map(Number);
-      const pixels = width * height;
-      return Math.abs(pixels - targetPixels) < Math.abs(prev.pixels - targetPixels)
-        ? { size: curr, pixels }
-        : prev;
-    }, { size: availableSizes[0], pixels: Infinity }).size;
-  };
-
   const takePicture = async () => {
     if (cameraRef.current) {
-      const bestSize = getBestSize();
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 1,
-        pictureSize: bestSize,
-      });
-      const manipResult = await ImageManipulator.manipulateAsync(
-        photo.uri,
-        [{ resize: { width: imageWidth, height: imageHeight } }],
-        { format: 'jpeg' }
-      );
-      setImage(manipResult);
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        const manipResult = await ImageManipulator.manipulateAsync(
+          photo.uri,
+          [{ resize: { width: imageWidth, height: imageHeight } }],
+          { format: 'jpeg' }
+        );
+        setImage(manipResult);
+      } catch (error) {
+        console.error('Error taking picture:', error);
+        setModalMessage('Failed to take picture. Please try again.');
+        setShowModal(true);
+      }
     }
   };
 
   const saveIdea = async () => {
     if (text && image) {
-      await addIdeaForPerson(personId, text, image.uri, imageWidth, imageHeight);
-      navigation.navigate('Ideas', { personId });
+      try {
+        await addIdeaForPerson(personId, text, image.uri, imageWidth, imageHeight);
+        navigation.navigate('Ideas', { personId });
+      } catch (error) {
+        console.error('Error saving idea:', error);
+        setModalMessage('Failed to save idea. Please try again.');
+        setShowModal(true);
+      }
     } else {
       setModalMessage('Please provide both text and image for the idea.');
       setShowModal(true);
@@ -73,7 +66,7 @@ export default function AddIdeaScreen() {
   };
 
   if (hasPermission === null) {
-    return <View />;
+    return <View><Text>Requesting camera permission...</Text></View>;
   }
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
@@ -92,7 +85,7 @@ export default function AddIdeaScreen() {
       />
       <Camera 
         style={styles.camera} 
-        type={Camera.Constants.Type.back}
+        type={cameraType}
         ref={cameraRef}
       >
         <View style={styles.buttonContainer}>

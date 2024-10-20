@@ -9,7 +9,7 @@ export const PeopleProvider = ({ children }) => {
 
   const STORAGE_KEY = "people";
 
-  // Load people from AsyncStorage
+  // load people from async storage
   useEffect(() => {
     const loadPeople = async () => {
       const savedPeople = await AsyncStorage.getItem(STORAGE_KEY);
@@ -22,7 +22,7 @@ export const PeopleProvider = ({ children }) => {
     const newPerson = {
       id: randomUUID(),
       name,
-      dob,
+      dob: dob, // year month day format
       ideas: [],
     };
     const updatedPeople = [...people, newPerson];
@@ -53,11 +53,11 @@ export const PeopleProvider = ({ children }) => {
   };
 
   const deleteIdeaForPerson = async (personId, ideaId) => {
-    const updatedPeople = people.map((person) => {
+    const updatedPeople = people.map(person => {
       if (person.id === personId) {
         return {
           ...person,
-          ideas: person.ideas.filter((idea) => idea.id !== ideaId),
+          ideas: person.ideas.filter(idea => idea.id !== ideaId)
         };
       }
       return person;
@@ -80,7 +80,7 @@ export const PeopleProvider = ({ children }) => {
   return (
     <PeopleContext.Provider
       value={{
-        people: getSortedPeople(),
+        people,
         addPerson,
         getIdeasForPerson,
         addIdeaForPerson,

@@ -1,23 +1,41 @@
-import React, { useContext } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import PeopleContext from '../PeopleContext';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useContext } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import PeopleContext from "../PeopleContext";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function IdeaScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { personId } = route.params;
-  const { people, getIdeasForPerson, deleteIdeaForPerson } = useContext(PeopleContext);
+  const { people, getIdeasForPerson, deleteIdeaForPerson } =
+    useContext(PeopleContext);
 
-  const person = people.find(p => p.id === personId);
+  //finding the person based on the personId
+  const person = people.find((p) => p.id === personId);
+  //get the ideas for the person
   const ideas = getIdeasForPerson(personId);
+
+  const handleDelete = (ideaId) => {
+    Alert.alert("Delete Idea", "Are you sure you want to delete this idea?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "OK", onPress: () => deleteIdeaForPerson(personId, ideaId) },
+    ]);
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.ideaItem}>
       <Image source={{ uri: item.img }} style={styles.thumbnail} />
       <Text style={styles.ideaText}>{item.text}</Text>
-      <TouchableOpacity onPress={() => deleteIdeaForPerson(personId, item.id)}>
+      <TouchableOpacity onPress={() => handleDelete(item.id)}>
         <Ionicons name="trash-outline" size={24} color="red" />
       </TouchableOpacity>
     </View>
@@ -25,9 +43,11 @@ export default function IdeaScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Gift Ideas for {person.name}</Text>
+      <Text style={styles.header}>Gift Ideas for {person.name}!</Text>
       {ideas.length === 0 ? (
-        <Text style={styles.emptyMessage}>No ideas yet. Add your first idea!</Text>
+        <Text style={styles.emptyMessage}>
+          Dang! No ideas yet. Add your first idea!
+        </Text>
       ) : (
         <FlatList
           data={ideas}
@@ -37,9 +57,9 @@ export default function IdeaScreen() {
       )}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('AddIdea', { personId })}
+        onPress={() => navigation.navigate("AddIdea", { personId })}
       >
-        <Ionicons name="add" size={24} color="white" />
+        <Ionicons name="add" size={30} color="#FFF" />
       </TouchableOpacity>
     </View>
   );
@@ -49,40 +69,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#E8EBE4",
   },
   header: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
+    color: "#454940",
+    textAlign: "center",
   },
   ideaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 15,
+    backgroundColor: "#F2F4F0",
+    padding: 10,
+    borderRadius: 10,
   },
   thumbnail: {
     width: 50,
     height: 75,
     marginRight: 10,
+    borderRadius: 5,
   },
   ideaText: {
     flex: 1,
+    color: "#454940",
   },
   emptyMessage: {
     fontSize: 18,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 50,
+    color: "#666",
   },
   fab: {
-    position: 'absolute',
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-    right: 20,
-    bottom: 20,
-    backgroundColor: '#007AFF',
-    borderRadius: 28,
-    elevation: 8,
+    position: "absolute",
+    width: 60,
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    right: 50,
+    bottom: 40,
+    backgroundColor: "#454940",
+    borderRadius: 30,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   },
 });

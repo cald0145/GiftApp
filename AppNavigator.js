@@ -11,11 +11,46 @@ const Stack = createStackNavigator();
 export default function AppNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="People" component={PeopleScreen} />
-        <Stack.Screen name="AddPerson" component={AddPersonScreen} />
-        <Stack.Screen name="Ideas" component={IdeaScreen} />
-        <Stack.Screen name="AddIdea" component={AddIdeaScreen} />
+      <Stack.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: '#E8EBE4',
+          },
+          headerTintColor: '#798071',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 30,
+          },
+        }}
+      >
+        <Stack.Screen 
+          name="People" 
+          component={PeopleScreen}
+          options={{
+            title: 'Giftie',
+          }}
+        />
+        <Stack.Screen 
+          name="AddPerson" 
+          component={AddPersonScreen}
+          options={{
+            title: 'Add A Person!',
+          }}
+        />
+        <Stack.Screen 
+          name="Ideas" 
+          component={IdeaScreen}
+          options={{
+            title: 'Gift Ideas',
+          }}
+        />
+        <Stack.Screen 
+          name="AddIdea" 
+          component={AddIdeaScreen}
+          options={{
+            title: 'Add An Idea!',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

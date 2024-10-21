@@ -25,14 +25,11 @@ export default function IdeaScreen() {
 
   // load ideas when the component mounts or personId changes
   useEffect(() => {
-    loadIdeas();
-  }, [personId]);
-
-  // fetch ideas for the current person
-  const loadIdeas = () => {
-    const loadedIdeas = getIdeasForPerson(personId);
-    setIdeas(loadedIdeas);
-  };
+    if (person) {
+      const loadedIdeas = getIdeasForPerson(personId);
+      setIdeas(loadedIdeas);
+    }
+  }, [personId, people]);
 
   // handle deletion of an idea
   const handleDelete = async (ideaId) => {
@@ -42,7 +39,8 @@ export default function IdeaScreen() {
         text: "OK",
         onPress: async () => {
           await deleteIdeaForPerson(personId, ideaId);
-          loadIdeas(); // reload ideas after deletion
+          const updatedIdeas = getIdeasForPerson(personId);
+          setIdeas(updatedIdeas);
         },
       },
     ]);

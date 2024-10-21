@@ -66,6 +66,24 @@ export const PeopleProvider = ({ children }) => {
     savePeople(updatedPeople);
   };
 
+  // function to delete a person
+  const deletePerson = async (personId) => {
+    try {
+      const updatedPeople = people.filter(person => person.id !== personId);
+      await AsyncStorage.setItem('people', JSON.stringify(updatedPeople));
+      setPeople(updatedPeople);
+    } catch (error) {
+      console.error('error deleting person:', error);
+      throw error; // rethrow the error so we can handle it in the component
+    }
+  };
+
+  // function to get ideas for a specific person
+  const getIdeasForPerson = (personId) => {
+    const person = people.find(p => p.id === personId);
+    return person ? person.ideas : [];
+  };
+
   // provide the context value to child components
   return (
     <PeopleContext.Provider
@@ -74,6 +92,8 @@ export const PeopleProvider = ({ children }) => {
         addPerson,
         addIdeaForPerson,
         deleteIdeaForPerson,
+        deletePerson,
+        getIdeasForPerson,
       }}
     >
       {children}

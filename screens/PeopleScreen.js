@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   FlatList,
@@ -11,11 +11,17 @@ import {
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import PeopleContext from "../PeopleContext";
 import { Ionicons } from "@expo/vector-icons";
+import SwipeablePersonItem from "../components/SwipeablePersonItem";
+import Modal from "../components/Modal";
 
 export default function PeopleScreen() {
+  // hook for navigation
   const navigation = useNavigation();
-  // access the people array from the global context
-  const { people } = useContext(PeopleContext);
+  // get people and deletePerson function from context
+  const { people, deletePerson } = useContext(PeopleContext);
+  // state for modal visibility and message
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   // sort people by month and then day of birth
   const sortedPeople = [...people].sort((a, b) => {
@@ -27,8 +33,20 @@ export default function PeopleScreen() {
     return dateA.getDate() - dateB.getDate();
   });
 
+  // function to handle person deletion
+  const handleDeletePerson = async (personId) => {
+    try {
+      await deletePerson(personId);
+      // the list will automatically update due to the context change
+    } catch (error) {
+      setModalMessage("failed to delete person. please try again.");
+      setModalVisible(true);
+    }
+  };
+
   // render each person item in the FlatList
   const renderItem = ({ item }) => {
+    // format date of birth
     const dob = new Date(item.dob);
     const monthDay = dob.toLocaleDateString("en-US", {
       month: "short",
@@ -36,21 +54,23 @@ export default function PeopleScreen() {
     });
 
     return (
-      <TouchableOpacity
-        style={styles.item}
+      <SwipeablePersonItem
+        person={item}
         onPress={() => navigation.navigate("Ideas", { personId: item.id })}
+        onDelete={() => handleDeletePerson(item.id)}
       >
-        <View>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.dob}>{monthDay}</Text>
+        <View style={styles.item}>
+          <View>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.dob}>{monthDay}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Ideas", { personId: item.id })}
+          >
+            <Ionicons name="gift-outline" size={40} color="#798071" />
+          </TouchableOpacity>
         </View>
-        {/* gift icon to navigate to IdeaScreen */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Ideas", { personId: item.id })}
-        >
-          <Ionicons name="gift-outline" size={40} color="#798071" />
-        </TouchableOpacity>
-      </TouchableOpacity>
+      </SwipeablePersonItem>
     );
   };
 
@@ -58,23 +78,30 @@ export default function PeopleScreen() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         {sortedPeople.length === 0 ? (
-          // display message if no people are added yet
+          // show message if no people are added
           <Text style={styles.emptyMessage}>Add your first person!</Text>
         ) : (
-          // display list of people
+          // render list of people
           <FlatList
             data={sortedPeople}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
           />
         )}
-        {/* fab to add a new person */}
+        {/* floating action button to add new person */}
         <TouchableOpacity
           style={styles.fab}
           onPress={() => navigation.navigate("AddPerson")}
         >
           <Ionicons name="add" size={30} color="#FFF" />
         </TouchableOpacity>
+        {/* modal for error messages */}
+        <Modal
+          visible={modalVisible}
+          message={modalMessage}
+          type="alert"
+          onClose={() => setModalVisible(false)}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -90,8 +117,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#000000",
   },
   name: {
     fontSize: 18,
@@ -118,9 +143,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#454940",
     borderRadius: 30,
     elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
   },
 });

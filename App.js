@@ -1,14 +1,14 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./AppNavigator.js";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PeopleProvider } from "./PeopleContext";
+import AppNavigator from './AppNavigator';
 
 export default function App() {
   return (
-    <PeopleProvider>
-      <NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PeopleProvider>
         <AppNavigator />
-      </NavigationContainer>
-    </PeopleProvider>
+      </PeopleProvider>
+    </GestureHandlerRootView>
   );
 }

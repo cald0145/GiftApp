@@ -65,13 +65,13 @@ export default function AddPersonScreen() {
             onSelectedChange={(date) => setDob(date)}
             mode="calendar"
             options={{
-              backgroundColor: '#F2F4F0',
-              textHeaderColor: '#454940',
-              textDefaultColor: '#454940',
-              selectedTextColor: '#fff',
-              mainColor: '#879772',
-              textSecondaryColor: '#454940',
-              borderColor: 'rgba(122, 146, 165, 0.1)',
+              backgroundColor: "#F2F4F0",
+              textHeaderColor: "#454940",
+              textDefaultColor: "#454940",
+              selectedTextColor: "#fff",
+              mainColor: "#879772",
+              textSecondaryColor: "#454940",
+              borderColor: "rgba(122, 146, 165, 0.1)",
             }}
             style={{ borderRadius: 20, marginBottom: 20 }}
           />

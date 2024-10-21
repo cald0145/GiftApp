@@ -15,7 +15,7 @@
     "@types/react": "~18.2.79",
     "date-fns": "^4.1.0",
     "expo": "~51.0.28",
-    "expo-camera": "^15.0.16",
+    "expo-camera": "~15.0.16",
     "expo-crypto": "~13.0.2",
     "expo-image-manipulator": "~12.0.5",
     "expo-status-bar": "~1.12.1",

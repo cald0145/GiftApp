@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,43 +18,76 @@ export default function IdeaScreen() {
   const { personId } = route.params;
   const { people, getIdeasForPerson, deleteIdeaForPerson } =
     useContext(PeopleContext);
+  const [ideas, setIdeas] = useState([]);
 
-  //finding the person based on the personId
+  // find the person based on the personId
   const person = people.find((p) => p.id === personId);
-  //get the ideas for the person
-  const ideas = getIdeasForPerson(personId);
 
-  const handleDelete = (ideaId) => {
+  // load ideas when the component mounts or personId changes
+  useEffect(() => {
+    loadIdeas();
+  }, [personId]);
+
+  // fetch ideas for the current person
+  const loadIdeas = () => {
+    const loadedIdeas = getIdeasForPerson(personId);
+    setIdeas(loadedIdeas);
+  };
+
+  // handle deletion of an idea
+  const handleDelete = async (ideaId) => {
     Alert.alert("Delete Idea", "Are you sure you want to delete this idea?", [
       { text: "Cancel", style: "cancel" },
-      { text: "OK", onPress: () => deleteIdeaForPerson(personId, ideaId) },
+      {
+        text: "OK",
+        onPress: async () => {
+          await deleteIdeaForPerson(personId, ideaId);
+          loadIdeas(); // reload ideas after deletion
+        },
+      },
     ]);
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.ideaItem}>
-      <Image source={{ uri: item.img }} style={styles.thumbnail} />
-      <Text style={styles.ideaText}>{item.text}</Text>
-      <TouchableOpacity onPress={() => handleDelete(item.id)}>
-        <Ionicons name="trash-outline" size={24} color="red" />
-      </TouchableOpacity>
-    </View>
-  );
+  // render individual idea item
+  const renderItem = ({ item }) => {
+    const aspectRatio = item.width / item.height;
+    const thumbnailWidth = 50;
+    const thumbnailHeight = thumbnailWidth / aspectRatio;
+
+    return (
+      <View style={styles.ideaItem}>
+        <Image
+          source={{ uri: item.img }}
+          style={[
+            styles.thumbnail,
+            { width: thumbnailWidth, height: thumbnailHeight },
+          ]}
+        />
+        <Text style={styles.ideaText}>{item.text}</Text>
+        <TouchableOpacity onPress={() => handleDelete(item.id)}>
+          <Ionicons name="trash-outline" size={30} color="red" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Gift Ideas for {person.name}!</Text>
       {ideas.length === 0 ? (
+        // display message when no ideas are present
         <Text style={styles.emptyMessage}>
           Dang! No ideas yet. Add your first idea!
         </Text>
       ) : (
+        // display list of ideas
         <FlatList
           data={ideas}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
         />
       )}
+      {/* floating action button to add new idea */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate("AddIdea", { personId })}
@@ -87,8 +120,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   thumbnail: {
-    width: 50,
-    height: 75,
     marginRight: 10,
     borderRadius: 5,
   },

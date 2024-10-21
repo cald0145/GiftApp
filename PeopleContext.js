@@ -9,7 +9,7 @@ export const PeopleProvider = ({ children }) => {
 
   const STORAGE_KEY = "people";
 
-  // load people from async storage
+  // load people from async storage on component mount
   useEffect(() => {
     const loadPeople = async () => {
       const savedPeople = await AsyncStorage.getItem(STORAGE_KEY);
@@ -18,6 +18,7 @@ export const PeopleProvider = ({ children }) => {
     loadPeople();
   }, []);
 
+  // add a new person to the list
   const addPerson = async (name, dob) => {
     const newPerson = {
       id: randomUUID(),
@@ -30,34 +31,47 @@ export const PeopleProvider = ({ children }) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
 
+  // get ideas for a specific person
   const getIdeasForPerson = (personId) => {
     const person = people.find((p) => p.id === personId);
     return person ? person.ideas : [];
   };
 
-  const addIdeaForPerson = async (personId, text, img, width, height) => {
+  // add a new idea for a specific person
+  const addIdeaForPerson = async (personId, text, imageUri, width, height) => {
+    if (!text || !imageUri) {
+      throw new Error("Please provide both text and image for the idea.");
+    }
+
+    const newIdea = {
+      id: randomUUID(),
+      text,
+      img: imageUri,
+      width,
+      height,
+    };
+
     const updatedPeople = people.map((person) => {
       if (person.id === personId) {
         return {
           ...person,
-          ideas: [
-            ...person.ideas,
-            { id: randomUUID(), text, img, width, height },
-          ],
+          ideas: [...person.ideas, newIdea],
         };
       }
       return person;
     });
+
     setPeople(updatedPeople);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
 
+  // delete an idea for a specific person
   const deleteIdeaForPerson = async (personId, ideaId) => {
-    const updatedPeople = people.map(person => {
+    const updatedPeople = people.map((person) => {
       if (person.id === personId) {
         return {
           ...person,
-          ideas: person.ideas.filter(idea => idea.id !== ideaId)
+          ideas: person.ideas.filter((idea) => idea.id !== ideaId),
         };
       }
       return person;
@@ -66,6 +80,7 @@ export const PeopleProvider = ({ children }) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople));
   };
 
+  // sort people by their birthday (month and day)
   const getSortedPeople = () => {
     return [...people].sort((a, b) => {
       const dateA = new Date(a.dob);
@@ -77,6 +92,7 @@ export const PeopleProvider = ({ children }) => {
     });
   };
 
+  // provide context values to children components
   return (
     <PeopleContext.Provider
       value={{

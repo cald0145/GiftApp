@@ -1,20 +1,14 @@
-import { StyleSheet, Text, View } from "react-native";
-import AppNavigator from "./AppNavigator";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./AppNavigator.js";
 import { PeopleProvider } from "./PeopleContext";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <PeopleProvider>
+    <PeopleProvider>
+      <NavigationContainer>
         <AppNavigator />
-      </PeopleProvider>
-    </View>
+      </NavigationContainer>
+    </PeopleProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-});

@@ -14,41 +14,41 @@ export default function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#E8EBE4',
+            backgroundColor: "#E8EBE4",
           },
-          headerTintColor: '#798071',
+          headerTintColor: "#798071",
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: "bold",
             fontSize: 30,
           },
         }}
       >
-        <Stack.Screen 
-          name="People" 
+        <Stack.Screen
+          name="People"
           component={PeopleScreen}
           options={{
-            title: 'Giftie',
+            title: "Giftie",
           }}
         />
-        <Stack.Screen 
-          name="AddPerson" 
+        <Stack.Screen
+          name="AddPerson"
           component={AddPersonScreen}
           options={{
-            title: 'Add A Person!',
+            title: "Add A Person!",
           }}
         />
-        <Stack.Screen 
-          name="Ideas" 
+        <Stack.Screen
+          name="Ideas"
           component={IdeaScreen}
           options={{
-            title: 'Gift Ideas',
+            title: "Gift Ideas",
           }}
         />
-        <Stack.Screen 
-          name="AddIdea" 
+        <Stack.Screen
+          name="AddIdea"
           component={AddIdeaScreen}
           options={{
-            title: 'Add An Idea!',
+            title: "Add An Idea!",
           }}
         />
       </Stack.Navigator>

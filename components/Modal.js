@@ -7,35 +7,49 @@ import {
   Modal as RNModal,
 } from "react-native";
 
-const Modal = ({ visible, message, onClose }) => {
+export default function Modal({ visible, message, type, onClose, onConfirm }) {
   return (
     <RNModal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
+          {/* display the message passed to the modal */}
           <Text style={styles.modalText}>{message}</Text>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
+
+          {/* if type is 'confirm', show both cancel and confirm buttons */}
+          {type === "confirm" ? (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={onClose}>
+                <Text style={styles.buttonText}>cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={onConfirm}>
+                <Text style={styles.buttonText}>confirm</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            // for other types (like 'alert'), show only an OK button
+            <TouchableOpacity style={styles.button} onPress={onClose}>
+              <Text style={styles.buttonText}>ok</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </RNModal>
   );
-};
+}
 
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent background
   },
   modalView: {
-    margin: 20,
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -49,21 +63,25 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   button: {
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    backgroundColor: "red",
+    backgroundColor: "#2196F3",
+    marginHorizontal: 10,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
   },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
 });
-
-export default Modal;

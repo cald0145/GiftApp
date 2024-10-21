@@ -25,7 +25,7 @@ export default function AddIdeaScreen() {
   //??????????????? NOT WORKING
   const [facing, setFacing] = useState(CameraType.back);
   // state for showing modal
-  const [showModal, setShowModal] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   // state for modal message
   const [modalMessage, setModalMessage] = useState("");
 
@@ -61,7 +61,7 @@ export default function AddIdeaScreen() {
       } catch (error) {
         console.error("error taking picture:", error);
         setModalMessage("failed to take picture. please try again.");
-        setShowModal(true);
+        setModalVisible(true);
       }
     }
   };
@@ -80,11 +80,11 @@ export default function AddIdeaScreen() {
         navigation.navigate("Ideas", { personId });
       } catch (error) {
         setModalMessage(error.message);
-        setShowModal(true);
+        setModalVisible(true);
       }
     } else {
       setModalMessage("please provide both text and image for the idea.");
-      setShowModal(true);
+      setModalVisible(true);
     }
   };
 
@@ -142,9 +142,10 @@ export default function AddIdeaScreen() {
         />
       </View>
       <Modal
-        visible={showModal}
+        visible={modalVisible}
         message={modalMessage}
-        onClose={() => setShowModal(false)}
+        type="alert"
+        onClose={() => setModalVisible(false)}
       />
     </KeyboardAvoidingView>
   );

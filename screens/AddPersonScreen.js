@@ -27,17 +27,15 @@ export default function AddPersonScreen() {
   const savePerson = async () => {
     if (name && dob) {
       try {
-        // convert the date string to year month day format
-        const formattedDob = dob.split("/").reverse().join("-");
-        await addPerson(name, formattedDob);
-        navigation.goBack(); // Return to PeopleScreen on success
+        // converting the date string to a format that can be parsed correctly
+        const formattedDob = dob.split("/").reverse().join("-"); // format to year month day
+        await addPerson(name, formattedDob); // pass the formatted date
+        navigation.goBack(); // return to PeopleScreen on success
       } catch (error) {
-        // show error modal if save fails
         setModalMessage("Sorry! Failed to save the person. Please try again!");
         setShowModal(true);
       }
     } else {
-      // show error modal if name or dob is missing
       setModalMessage("Oops! Please provide both name and date of birth!");
       setShowModal(true);
     }

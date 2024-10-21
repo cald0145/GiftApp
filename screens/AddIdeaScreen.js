@@ -17,23 +17,37 @@ import PeopleContext from "../PeopleContext";
 import Modal from "../components/Modal";
 
 export default function AddIdeaScreen() {
+  // state for idea text input
   const [text, setText] = useState("");
+  // state for captured image
   const [image, setImage] = useState(null);
-  const [facing, setFacing] = useState<CameraType>('back');
+  // state for camera facing direction
+  //??????????????? NOT WORKING
+  const [facing, setFacing] = useState(CameraType.back);
+  // state for showing modal
   const [showModal, setShowModal] = useState(false);
+  // state for modal message
   const [modalMessage, setModalMessage] = useState("");
-  const cameraRef = useRef(null);
+
+  // navigation and route hooks
   const navigation = useNavigation();
   const route = useRoute();
+  // get personId from route params
   const { personId } = route.params;
+
+  // get addIdeaForPerson function from context
   const { addIdeaForPerson } = useContext(PeopleContext);
+
+  // get camera permissions
   const [permission, requestPermission] = useCameraPermissions();
 
+  // calculate image dimensions
   const aspectRatio = 2 / 3;
   const screenWidth = Dimensions.get("window").width;
   const imageWidth = screenWidth * 0.6; // 60% of screen width
   const imageHeight = imageWidth * aspectRatio;
 
+  // function to take a picture
   const takePicture = async () => {
     if (cameraRef.current) {
       try {
@@ -45,13 +59,14 @@ export default function AddIdeaScreen() {
         );
         setImage(manipResult);
       } catch (error) {
-        console.error("Error taking picture:", error);
-        setModalMessage("Failed to take picture. Please try again.");
+        console.error("error taking picture:", error);
+        setModalMessage("failed to take picture. please try again.");
         setShowModal(true);
       }
     }
   };
 
+  // function to save the idea
   const saveIdea = async () => {
     if (text && image) {
       try {
@@ -68,34 +83,36 @@ export default function AddIdeaScreen() {
         setShowModal(true);
       }
     } else {
-      setModalMessage("Please provide both text and image for the idea.");
+      setModalMessage("please provide both text and image for the idea.");
       setShowModal(true);
     }
   };
 
+  // function to toggle camera facing
   function toggleCameraFacing() {
     setFacing((current) =>
       current === CameraType.back ? CameraType.front : CameraType.back
     );
   }
 
+  // if permissions are still loading, show empty view
   if (!permission) {
-    // Camera permissions are still loading
     return <View />;
   }
 
+  // if permissions are not granted, show permission request
   if (!permission.granted) {
-    // Camera permissions are not granted yet
     return (
       <View style={styles.container}>
         <Text style={styles.message}>
-          We need your permission to show the camera
+          we need your permission to show the camera
         </Text>
         <Button onPress={requestPermission} title="grant permission" />
       </View>
     );
   }
 
+  // main component render
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -103,24 +120,24 @@ export default function AddIdeaScreen() {
     >
       <TextInput
         style={styles.input}
-        placeholder="Idea description"
+        placeholder="idea description"
         value={text}
         onChangeText={setText}
       />
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+      <CameraView style={styles.camera} facing={facing}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
+            <Text style={styles.text}>flip camera</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.text}>Take Picture</Text>
+            <Text style={styles.text}>take picture</Text>
           </TouchableOpacity>
         </View>
       </CameraView>
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={saveIdea} />
+        <Button title="save" onPress={saveIdea} />
         <Button
-          title="Cancel"
+          title="cancel"
           onPress={() => navigation.navigate("Ideas", { personId })}
         />
       </View>
